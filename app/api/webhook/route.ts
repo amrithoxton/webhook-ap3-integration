@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
 
-// Define the incoming webhook payload structure
 interface IncomingWebhookPayload {
   campaign_id?: string;
   campaign_name?: string;
@@ -15,7 +14,6 @@ interface IncomingWebhookPayload {
   webhook_name?: string;
 }
 
-// Define the AP3 API request structure
 interface AP3ApiRequest {
   people: Array<{
     fields: {
@@ -31,11 +29,9 @@ export async function POST(request: NextRequest) {
   const startTime = Date.now();
   
   try {
-    // Parse incoming webhook payload
     const body = await request.json();
     console.log('[WEBHOOK] Received payload:', JSON.stringify(body, null, 2));
 
-    // Extract contact_id from the payload
     const payload = body.body || body;
     const contactId = payload.contact_id;
 
@@ -49,7 +45,6 @@ export async function POST(request: NextRequest) {
 
     console.log(`[WEBHOOK] Extracted contact_id: ${contactId}`);
 
-    // Get API key from environment
     const apiKey = process.env.AP3_API_KEY;
     if (!apiKey) {
       console.error('[WEBHOOK] AP3_API_KEY environment variable not set');
@@ -59,7 +54,6 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Construct the AP3 API request payload
     const ap3Payload: AP3ApiRequest = {
       people: [
         {
@@ -75,7 +69,6 @@ export async function POST(request: NextRequest) {
 
     console.log('[AP3] Sending request to AP3 API:', JSON.stringify(ap3Payload, null, 2));
 
-    // Make the API call to AP3
     const ap3Response = await fetch('https://api.eu.ap3api.com/v1/person/merge', {
       method: 'POST',
       headers: {
@@ -83,7 +76,7 @@ export async function POST(request: NextRequest) {
         'X-Api-Key': apiKey,
       },
       body: JSON.stringify(ap3Payload),
-      signal: AbortSignal.timeout(30000), // 30 second timeout
+      signal: AbortSignal.timeout(30000),
     });
 
     const responseText = await ap3Response.text();
@@ -116,7 +109,6 @@ export async function POST(request: NextRequest) {
 
     console.log(`[AP3] API call successful (${duration}ms):`, responseData);
 
-    // Return success response
     return NextResponse.json({
       success: true,
       contact_id: contactId,
@@ -142,31 +134,3 @@ export async function POST(request: NextRequest) {
     );
   }
 }
-
-// Health check endpoint
-export async function GET() {
-  return NextResponse.json({
-    status: 'ok',
-    timestamp: new Date().toISOString(),
-    endpoint: '/api/webhook',
-  });
-}
-```
-
----
-
-## 📂 Final Directory Structure
-
-Your GitHub repository should look like this:
-```
-webhook-ap3-integration/
-├── package.json
-├── next.config.js
-├── tsconfig.json
-├── vercel.json
-├── .env.local.example
-├── README.md
-└── app/
-    └── api/
-        └── webhook/
-            └── route.ts
