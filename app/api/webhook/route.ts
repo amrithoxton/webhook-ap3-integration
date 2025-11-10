@@ -36,10 +36,17 @@ export async function POST(request: NextRequest) {
     const contactId = payload.contact_id;
 
     if (!contactId) {
-      console.error('[WEBHOOK] Missing contact_id in payload');
+      console.log('[WEBHOOK] No contact_id provided - test mode');
       return NextResponse.json(
-        { success: false, error: 'Missing contact_id in payload' },
-        { status: 400 }
+        { 
+          success: true, 
+          test_mode: true,
+          message: 'No contact_id provided. Send {"contact_id": "YOUR_ID"} to process.',
+          example_payload: {
+            contact_id: '0068fa1982f804ecb44e2f00'
+          }
+        },
+        { status: 200 }
       );
     }
 
@@ -134,6 +141,7 @@ export async function POST(request: NextRequest) {
     );
   }
 }
+
 export async function GET() {
   return NextResponse.json({
     status: 'ok',
