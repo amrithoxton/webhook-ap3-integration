@@ -3,8 +3,5 @@
   "framework": "nextjs",
   "buildCommand": "next build",
   "devCommand": "next dev",
-  "installCommand": "npm install",
-  "env": {
-    "AP3_API_KEY": "@ap3_api_key"
-  }
+  "installCommand": "npm install"
 }
